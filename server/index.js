@@ -11,21 +11,29 @@ const storeRouteFactory = require('./routes/store');
 const verifyRouteFactory = require('./routes/verify');
 const OrbsClientService = require('./services/orbs');
 
-const port = process.env.PORT || 5678;
+class Server {
+  constructor({ virtualChainId, orbsNodeAddress, port }) {
+    this.port = port;
+    this.app = express();
+    this.orbsClientService = new OrbsClientService(
+      orbsNodeAddress,
+      virtualChainId
+    );
 
-const virtualChainId = 1100000;
-const orbsNodeAddress = '18.197.127.2';
+    this.app.get('/ping', (req, res) => res.send('pong'));
+    this.app.use('/api', storeRouteFactory(this.orbsClientService));
+    this.app.use('/api', verifyRouteFactory(this.orbsClientService));
+  }
 
-const orbsClientService = new OrbsClientService(
-  orbsNodeAddress,
-  virtualChainId
-);
+  start() {
+    this._server = this.app.listen(this.port, () =>
+      console.log(`Started on port ${this.port}!`)
+    );
+  }
 
-const app = express();
+  stop() {
+    this._server.stop();
+  }
+}
 
-app.get('/ping', (req, res) => res.send('pong'));
-
-app.use('/api', storeRouteFactory(orbsClientService));
-app.use('/api', verifyRouteFactory(orbsClientService));
-
-app.listen(port, () => console.log(`Started on port ${port}!`));
+module.exports = Server;

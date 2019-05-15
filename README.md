@@ -13,5 +13,5 @@ Return the timestamp of a created record.
 Calculates the hash of a given file and check whether it exists on the blockchain. <br>
 In case it does, returns the created timestamp, `null` otherwise.
 
-## LICENSE
+## License
 MIT.

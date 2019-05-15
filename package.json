@@ -4,8 +4,9 @@
   "description": "Notary application based on Orbs Network",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "jest",
-    "dev": "nodemon ./server/index.js",
+    "dev": "nodemon index.js",
     "lint": "prettier --write '**/*.js'"
   },
   "prettier": {
