@@ -21,6 +21,7 @@ class Server {
     );
 
     this.app.get('/ping', (req, res) => res.send('pong'));
+    this.app.use(express.static('client/public'));
     this.app.use('/api', storeRouteFactory(this.orbsClientService));
     this.app.use('/api', verifyRouteFactory(this.orbsClientService));
   }
