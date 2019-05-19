@@ -10,10 +10,10 @@
 
 ### Starting up gamma
 1. Start up gamma server: `npm run gamma:start`
-1. Deploy the notary contract: `npm run contract:deploy`
+1. Deploy the notary contract: `npm run notary:local`
 
 ## Deployment
-`npm run deploy`
+1. Deploy statics: `npm run deploy`
 
 ## License
 MIT.

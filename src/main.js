@@ -20,7 +20,12 @@ if (!localStorage.getItem(SENDER_PUBLIC_KEY)) {
 
 const publicKey = decodeHex(localStorage.getItem(SENDER_PUBLIC_KEY));
 const privateKey = decodeHex(localStorage.getItem(SENDER_PRIVATE_KEY));
-const orbsClient = new Client('http://localhost:8080', 42, 'TEST_NET');
+const orbsClient = new Client(
+  process.env.ORBS_NODE_ADDRESS,
+  process.env.ORBS_VCHAIN,
+  'TEST_NET'
+);
+
 
 const actions = new Actions(orbsClient, publicKey, privateKey);
 

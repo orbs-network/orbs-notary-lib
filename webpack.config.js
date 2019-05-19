@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const mode = process.env.NODE_ENV || 'development';
@@ -45,6 +46,10 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: '[name].css'
+    }),
+    new webpack.EnvironmentPlugin({
+      'ORBS_NODE_ADDRESS': process.env.ORBS_NODE_ADDRESS,
+      'ORBS_VCHAIN': process.env.ORBS_VCHAIN,
     })
   ],
   devtool: prod ? false : 'source-map'
