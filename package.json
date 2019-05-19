@@ -16,11 +16,14 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
     "dev": "webpack-dev-server --content-base public",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d public",
     "gamma:start": "gamma-cli start-local",
     "gamma:stop": "gamma-cli stop-local",
     "contract:deploy": "gamma-cli deploy ./contract/notary.go -name notary -signer user1"
   },
   "dependencies": {
+    "gh-pages": "^2.0.1",
     "orbs-client-sdk": "0.0.6",
     "sjcl": "^1.0.8"
   }
