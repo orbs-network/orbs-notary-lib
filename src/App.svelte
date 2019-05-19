@@ -7,13 +7,13 @@
   let file, error, results;
   export let actions;
 
-  const setFileHandler = (ev) => {
-    file = ev.detail;
+  const resetResults = () => {
     error = null;
     results = null;
-  }
-
+  };
+  
   const registerHandler = async () => {
+    resetResults();
     try {
       const res = await actions.register(file);
       results = res;
@@ -25,8 +25,10 @@
   };
 
   const verifyHandler = async () => {
-    const hash = await actions.verify(file);
-    console.log(hash);
+    resetResults();
+    const res = await actions.verify(file);
+    results = res;
+    console.log(res);
   };
 </script>
 
@@ -50,13 +52,13 @@
 <div class="container">
   <h1>Orbs Notary</h1>
   <Explanations />
-  <Input on:change={setFileHandler} />
+  <Input on:change={(ev) => {file = ev.detail, resetResults()}} />
   <div class="actions">
     <button disabled={!file} on:click={registerHandler}>Register</button>
     <button disabled={!file} on:click={verifyHandler}>Verify</button>
   </div>
   {#if error}
-    <Error error={error} />
+    <Error {error} />
   {/if}
   {#if results}
     <Result result={results} />

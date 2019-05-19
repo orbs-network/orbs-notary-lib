@@ -50,7 +50,14 @@ class Actions {
     }
   }
   async verify(file) {
-    return this._readFile(file);
+    const hash = await this._readFile(file);
+    const [tx] = this._buildTransactions('verify', hash);
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const timestamp = receipt.outputArguments[0].value;
+    return {
+      hash,
+      timestamp: Number(timestamp)
+    }
   }
 }
 
