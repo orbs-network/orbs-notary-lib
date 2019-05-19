@@ -21,7 +21,8 @@
     "deploy": "gh-pages -d public",
     "gamma:start": "gamma-cli start-local",
     "gamma:stop": "gamma-cli stop-local",
-    "contract:deploy": "gamma-cli deploy ./contract/notary.go -name notary -signer user1"
+    "notary:local": "gamma-cli deploy ./contract/notary.go -name notary -signer user1 -env local",
+    "notary:testnet": "gamma-cli deploy ./contract/notary.go -name notary -signer user1 -env validator"
   },
   "dependencies": {
     "orbs-client-sdk": "0.0.6",
