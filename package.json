@@ -1,39 +1,27 @@
 {
-  "name": "orbs-notary",
+  "name": "notary-client",
   "version": "0.0.1",
-  "description": "Notary application based on Orbs Network",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "jest",
-    "dev": "nodemon index.js",
-    "lint": "prettier --write '**/*.js'",
-    "deploy": "./scripts/deploy.sh"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "tabWidth": 2
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/orbs-network/notary.git"
-  },
-  "keywords": [
-    "notary",
-    "blockchain"
-  ],
-  "author": "Sergey Bolshchikov <sergey@orbs.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/orbs-network/notary/issues"
-  },
-  "homepage": "https://github.com/orbs-network/notary#readme",
-  "dependencies": {
-    "express": "^4.16.4"
-  },
   "devDependencies": {
-    "jest": "^24.8.0",
-    "nodemon": "^1.19.0",
-    "prettier": "^1.17.1"
+    "cross-env": "^5.2.0",
+    "css-loader": "^2.1.1",
+    "mini-css-extract-plugin": "^0.6.0",
+    "serve": "^11.0.0",
+    "style-loader": "^0.23.1",
+    "svelte": "^3.0.0",
+    "svelte-loader": "2.13.3",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.3.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "dev": "webpack-dev-server --content-base public",
+    "gamma:start": "gamma-cli start-local",
+    "gamma:stop": "gamma-cli stop-local",
+    "contract:deploy": "gamma-cli deploy ./contract/notary.go -name notary -signer user1"
+  },
+  "dependencies": {
+    "orbs-client-sdk": "0.0.6",
+    "sjcl": "^1.0.8"
   }
 }
