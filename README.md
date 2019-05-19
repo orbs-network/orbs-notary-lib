@@ -9,8 +9,8 @@
 1. Go to `http://localhost:8081`
 
 ### Starting up gamma
-1. Start up gamma server: `npm run start:gamma`
-1. Deploy the notary contract: `npm run deploy:contract`
+1. Start up gamma server: `npm run gamma:start`
+1. Deploy the notary contract: `npm run contract:deploy`
 
 ## Deployment
 `npm run deploy`
