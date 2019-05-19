@@ -32,6 +32,7 @@
     <td class="space">Content hash:</td>
     <td class="wrap">{result.hash}</td>
   </tr>
+
   {#if result.txHash}
     <tr>
       <td class="space">Tx hash:</td>
@@ -40,14 +41,14 @@
   {/if}
 
   {#if result.timestamp !== 0}
-  <tr>
-    <td class="space">Registered on:</td>
-    <td>{formatTimestamp(result.timestamp)}</td>
-  </tr>
+    <tr>
+      <td class="space">Registered on:</td>
+      <td>{formatTimestamp(result.timestamp)}</td>
+    </tr>
   {/if}
 
   <tr>
-    <td>Status</td>
+    <td>Status:</td>
     <td>{result.timestamp !== 0 ? 'Registered' : 'Not Registered'}</td>
   </tr>
 

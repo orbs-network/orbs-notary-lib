@@ -49,6 +49,7 @@ class Actions {
       timestamp: Number(returnValue)
     }
   }
+
   async verify(file) {
     const hash = await this._readFile(file);
     const [tx] = this._buildTransactions('verify', hash);
