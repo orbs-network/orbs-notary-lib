@@ -4,6 +4,7 @@
   "devDependencies": {
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
+    "gh-pages": "^2.0.1",
     "mini-css-extract-plugin": "^0.6.0",
     "serve": "^11.0.0",
     "style-loader": "^0.23.1",
@@ -23,7 +24,6 @@
     "contract:deploy": "gamma-cli deploy ./contract/notary.go -name notary -signer user1"
   },
   "dependencies": {
-    "gh-pages": "^2.0.1",
     "orbs-client-sdk": "0.0.6",
     "sjcl": "^1.0.8"
   }
