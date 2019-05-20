@@ -4,7 +4,7 @@
 
 <style>
   h5 {
-    color: red
+    color: red;
   }
 </style>
 

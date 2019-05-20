@@ -1,16 +1,16 @@
 <script>
   export let result;
   const formatTimestamp = timestamp =>
-    new Date(timestamp * 1000).toLocaleString("en-gb", {
+    new Date(timestamp * 1000).toLocaleString('en-gb', {
       hour12: false,
-      timeZone: "UTC",
-      timeZoneName: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric"
+      timeZone: 'UTC',
+      timeZoneName: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
     });
 </script>
 
@@ -41,6 +41,10 @@
   {/if}
 
   {#if result.timestamp !== 0}
+    <tr>
+      <td class="space">Signed by:</td>
+      <td class="wrap">{result.signer}</td>
+    </tr>
     <tr>
       <td class="space">Registered on:</td>
       <td>{formatTimestamp(result.timestamp)}</td>

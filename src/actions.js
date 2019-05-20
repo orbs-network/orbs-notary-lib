@@ -1,10 +1,7 @@
 import sjcl from 'sjcl';
-import {
-  argString,
-  encodeHex
-} from 'orbs-client-sdk/dist/index.es';
+import { argString, encodeHex } from 'orbs-client-sdk/dist/index.es';
 
-const binaryToHash = (binary) => {
+const binaryToHash = binary => {
   const hash = sjcl.hash.sha256.hash(binary);
   return sjcl.codec.hex.fromBits(hash);
 };
@@ -25,40 +22,47 @@ class Actions {
       reader.readAsBinaryString(file);
     });
   }
-  _buildTransactions(methodName, hash) {
-    return this.orbsClient.createTransaction(
+
+  async register(file) {
+    const hash = await this._readFile(file);
+    const [tx] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       'notary',
-      methodName,
+      'register',
       [argString(hash)]
     );
-  }
-  async register(file) {
-    const hash = await this._readFile(file);
-    const [tx] = this._buildTransactions('register', hash);
     const receipt = await this.orbsClient.sendTransaction(tx);
     const txHash = encodeHex(receipt.txHash);
-    const returnValue = receipt.outputArguments[0].value;
     if (receipt.executionResult !== 'SUCCESS') {
-      return Promise.reject(returnValue);
+      return Promise.reject(receipt.outputArguments[0].value);
     }
+    const timestamp = receipt.outputArguments[0].value;
+    const signer = encodeHex(receipt.outputArguments[1].value);
     return {
       txHash,
       hash,
-      timestamp: Number(returnValue)
-    }
+      timestamp: Number(timestamp),
+      signer
+    };
   }
 
   async verify(file) {
     const hash = await this._readFile(file);
-    const [tx] = this._buildTransactions('verify', hash);
-    const receipt = await this.orbsClient.sendTransaction(tx);
+    const query = this.orbsClient.createQuery(
+      this.publicKey,
+      'notary',
+      'verify',
+      [argString(hash)]
+    );
+    const receipt = await this.orbsClient.sendQuery(query);
     const timestamp = receipt.outputArguments[0].value;
+    const signer = encodeHex(receipt.outputArguments[1].value);
     return {
       hash,
-      timestamp: Number(timestamp)
-    }
+      timestamp: Number(timestamp),
+      signer
+    };
   }
 }
 

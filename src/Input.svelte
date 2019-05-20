@@ -1,8 +1,8 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
-  
+
   let isFileValid = true;
   const MB_10 = 10485760;
 

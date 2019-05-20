@@ -26,7 +26,6 @@ const orbsClient = new Client(
   'TEST_NET'
 );
 
-
 const actions = new Actions(orbsClient, publicKey, privateKey);
 
 const app = new App({

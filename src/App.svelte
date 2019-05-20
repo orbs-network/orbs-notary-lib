@@ -1,8 +1,8 @@
 <script>
-  import Input from "./Input.svelte";
-  import Error from "./Error.svelte";
-  import Result from "./Result.svelte";
-  import Explanations from "./Explanations.svelte";
+  import Input from './Input.svelte';
+  import Error from './Error.svelte';
+  import Result from './Result.svelte';
+  import Explanations from './Explanations.svelte';
 
   let file, error, results;
   export let actions;
@@ -11,7 +11,7 @@
     error = null;
     results = null;
   };
-  
+
   const registerHandler = async () => {
     resetResults();
     try {
@@ -52,7 +52,10 @@
 <div class="container">
   <h1>Orbs Notary</h1>
   <Explanations />
-  <Input on:change={(ev) => {file = ev.detail, resetResults()}} />
+  <Input
+    on:change={ev => {
+      (file = ev.detail), resetResults();
+    }} />
   <div class="actions">
     <button disabled={!file} on:click={registerHandler}>Register</button>
     <button disabled={!file} on:click={verifyHandler}>Verify</button>

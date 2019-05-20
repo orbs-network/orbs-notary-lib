@@ -1,28 +1,45 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"time"
 
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1"
+	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/address"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/state"
 )
 
 var PUBLIC = sdk.Export(register, verify)
 var SYSTEM = sdk.Export(_init)
 
+type Record struct {
+	Timestamp uint64
+	Signer    []byte
+}
+
 func _init() {}
 
-func register(hash string) (timestamp uint64) {
+func register(hash string) (timestamp uint64, signer []byte) {
 	key := []byte(hash)
-	if state.ReadUint64(key) != 0 {
+	if !bytes.Equal(state.ReadBytes(key), nil) {
 		panic("Record already exists")
 	}
 	timestamp = uint64(time.Now().Unix())
-	state.WriteUint64(key, timestamp)
+	signer = address.GetSignerAddress()
+	encoded, _ := json.Marshal(&Record{
+		timestamp,
+		signer,
+	})
+	state.WriteBytes(key, encoded)
 	return
 }
 
-func verify(hash string) (timestamp uint64) {
+func verify(hash string) (timestamp uint64, signer []byte) {
 	key := []byte(hash)
-	return state.ReadUint64(key)
+	var res Record
+	json.Unmarshal(state.ReadBytes(key), &res)
+	timestamp = res.Timestamp
+	signer = res.Signer
+	return
 }
