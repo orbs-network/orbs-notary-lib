@@ -1,6 +1,8 @@
 import sjcl from 'sjcl';
 import { argString, encodeHex } from 'orbs-client-sdk/dist/index.es';
 
+const contractName = 'Notary';
+
 const binaryToHash = binary => {
   const hash = sjcl.hash.sha256.hash(binary);
   return sjcl.codec.hex.fromBits(hash);
@@ -28,7 +30,7 @@ class Actions {
     const [tx] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
-      'notary',
+      contractName,
       'register',
       [argString(hash)]
     );
@@ -51,7 +53,7 @@ class Actions {
     const hash = await this._readFile(file);
     const query = this.orbsClient.createQuery(
       this.publicKey,
-      'notary',
+      contractName,
       'verify',
       [argString(hash)]
     );
