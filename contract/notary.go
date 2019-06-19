@@ -16,11 +16,12 @@ var SYSTEM = sdk.Export(_init)
 type Record struct {
 	Timestamp uint64
 	Signer    []byte
+	Metadata  string
 }
 
 func _init() {}
 
-func register(hash string) (timestamp uint64, signer []byte) {
+func register(hash string, metadata string) (timestamp uint64, signer []byte) {
 	key := []byte(hash)
 	if !bytes.Equal(state.ReadBytes(key), nil) {
 		panic("Record already exists")
@@ -30,16 +31,18 @@ func register(hash string) (timestamp uint64, signer []byte) {
 	encoded, _ := json.Marshal(&Record{
 		timestamp,
 		signer,
+		metadata,
 	})
 	state.WriteBytes(key, encoded)
 	return
 }
 
-func verify(hash string) (timestamp uint64, signer []byte) {
+func verify(hash string) (timestamp uint64, signer []byte, metadata string) {
 	key := []byte(hash)
 	var res Record
 	json.Unmarshal(state.ReadBytes(key), &res)
 	timestamp = res.Timestamp
 	signer = res.Signer
+	metadata = res.Metadata
 	return
 }
