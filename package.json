@@ -25,9 +25,12 @@
     "gamma:start": "gamma-cli start-local",
     "gamma:stop": "gamma-cli stop-local",
     "notary:local": "gamma-cli deploy ./contract/notary.go -name Notary -signer user1 -env local",
-    "notary:testnet": "gamma-cli deploy ./contract/notary.go -name Notary -signer user1 -env validator"
+    "notary:testnet": "gamma-cli deploy ./contract/notary.go -name Notary -signer user1 -env validator",
+    "test": "mocha test"
   },
   "dependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^6.1.4",
     "orbs-client-sdk": "0.0.6",
     "sjcl": "^1.0.8"
   },

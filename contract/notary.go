@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"time"
 
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/address"
+	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/env"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/state"
 )
 
@@ -25,7 +25,7 @@ func register(hash string) (timestamp uint64, signer []byte) {
 	if !bytes.Equal(state.ReadBytes(key), nil) {
 		panic("Record already exists")
 	}
-	timestamp = uint64(time.Now().Unix())
+	timestamp = env.GetBlockTimestamp()
 	signer = address.GetSignerAddress()
 	encoded, _ := json.Marshal(&Record{
 		timestamp,
