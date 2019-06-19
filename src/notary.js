@@ -1,12 +1,13 @@
-// import sjcl from 'sjcl';
- const { argString, encodeHex } = require('orbs-client-sdk');
+const sjcl = require('sjcl');
+const { argString, encodeHex } = require('orbs-client-sdk');
 
-const binaryToHash = binary => {
+const sha256 = binary => {
   const hash = sjcl.hash.sha256.hash(binary);
   return sjcl.codec.hex.fromBits(hash);
 };
 
-const readLocalFile = (file) => {
+// FIXME does not work
+const readFileFromBrowser = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = ev => {
@@ -17,7 +18,7 @@ const readLocalFile = (file) => {
   });
 };
 
-class Actions {
+class Notary {
   constructor(orbsClient, contractName, publicKey, privateKey) {
     this.orbsClient = orbsClient;
     this.contractName = contractName;
@@ -68,5 +69,6 @@ class Actions {
 }
 
 module.exports = {
-  Actions
+  Notary,
+  sha256,
 }
