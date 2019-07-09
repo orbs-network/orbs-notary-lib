@@ -1,20 +1,21 @@
-import * as sjcl from'sjcl';
-import { argString, encodeHex } from 'orbs-client-sdk/dist/index.es';
+const sjcl = require('sjcl');
+const { argString, encodeHex } = require('orbs-client-sdk/dist/index.es'); // for browser
+// const { argString, encodeHex } = require('orbs-client-sdk'); // for node
 
-export function encryptWithPassword(password, data) {
+function encryptWithPassword(password, data) {
   return sjcl.encrypt(password, data);
 }
 
-export function descryptWithPassword(password, data) {
+function descryptWithPassword(password, data) {
   return sjcl.decrypt(password, data);
 }
 
-export function sha256(binary) {
+function sha256(binary) {
   const hash = sjcl.hash.sha256.hash(binary);
   return sjcl.codec.hex.fromBits(hash);
 };
 
-export function readFileFromBrowser(file) {
+function readFileFromBrowser(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = ev => {
@@ -25,7 +26,7 @@ export function readFileFromBrowser(file) {
   });
 };
 
-export default class Notary {
+class Notary {
   constructor(orbsClient, contractName, publicKey, privateKey, optionalPassword) {
     this.orbsClient = orbsClient;
     this.contractName = contractName;
@@ -101,10 +102,10 @@ export default class Notary {
   }
 }
 
-// module.exports = {
-//   Notary,
-//   sha256,
-//   encryptWithPassword,
-//   descryptWithPassword,
-//   readFileFromBrowser
-// }
+module.exports = {
+  Notary,
+  sha256,
+  encryptWithPassword,
+  descryptWithPassword,
+  readFileFromBrowser
+}
