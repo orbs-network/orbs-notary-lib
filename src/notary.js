@@ -1,32 +1,31 @@
-const sjcl = require('sjcl');
-const { argString, encodeHex } = require('orbs-client-sdk');
+import * as sjcl from'sjcl';
+import { argString, encodeHex } from 'orbs-client-sdk/dist/index.es';
 
-function encryptWithPassword(password, data) {
+export function encryptWithPassword(password, data) {
   return sjcl.encrypt(password, data);
 }
 
-function descryptWithPassword(password, data) {
+export function descryptWithPassword(password, data) {
   return sjcl.decrypt(password, data);
 }
 
-function sha256(binary) {
+export function sha256(binary) {
   const hash = sjcl.hash.sha256.hash(binary);
   return sjcl.codec.hex.fromBits(hash);
 };
 
-// FIXME does not work
-function readFileFromBrowser(file) {
+export function readFileFromBrowser(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = ev => {
-      const hex = binaryToHash(ev.target.result);
+      const hex = sha256(ev.target.result);
       resolve(hex);
     };
     reader.readAsBinaryString(file);
   });
 };
 
-class Notary {
+export default class Notary {
   constructor(orbsClient, contractName, publicKey, privateKey, optionalPassword) {
     this.orbsClient = orbsClient;
     this.contractName = contractName;
@@ -102,9 +101,10 @@ class Notary {
   }
 }
 
-module.exports = {
-  Notary,
-  sha256,
-  encryptWithPassword,
-  descryptWithPassword,
-}
+// module.exports = {
+//   Notary,
+//   sha256,
+//   encryptWithPassword,
+//   descryptWithPassword,
+//   readFileFromBrowser
+// }

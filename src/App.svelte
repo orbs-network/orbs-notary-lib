@@ -6,6 +6,7 @@
 
   let file, error, results;
   export let actions;
+  export let readFileFromBrowser;
 
   const resetResults = () => {
     error = null;
@@ -15,7 +16,8 @@
   const registerHandler = async () => {
     resetResults();
     try {
-      const res = await actions.register(file);
+      const hash = await readFileFromBrowser(file);
+      const res = await actions.register(hash);
       results = res;
       console.log(res);
     } catch (err) {
@@ -26,7 +28,8 @@
 
   const verifyHandler = async () => {
     resetResults();
-    const res = await actions.verify(file);
+    const hash = await readFileFromBrowser(file);
+    const res = await actions.verify(hash);
     results = res;
     console.log(res);
   };
