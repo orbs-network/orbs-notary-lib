@@ -1,5 +1,6 @@
 import App from './App.svelte';
-import Actions from './actions';
+import { Notary, readFileFromBrowser } from './notary';
+// import { readFileFromBrowser } from './notary';
 import {
   createAccount,
   Client,
@@ -26,12 +27,13 @@ const orbsClient = new Client(
   'TEST_NET'
 );
 
-const actions = new Actions(orbsClient, publicKey, privateKey);
+const actions = new Notary(orbsClient, 'Notary', publicKey, privateKey);
 
 const app = new App({
   target: document.body,
   props: {
-    actions
+    actions,
+    readFileFromBrowser
   }
 });
 

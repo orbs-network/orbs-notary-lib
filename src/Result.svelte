@@ -1,7 +1,7 @@
 <script>
   export let result;
   const formatTimestamp = timestamp =>
-    new Date(timestamp * 1000).toLocaleString('en-gb', {
+    new Date(timestamp / 1000 / 1000).toLocaleString('en-gb', {
       hour12: false,
       timeZone: 'UTC',
       timeZoneName: 'short',
