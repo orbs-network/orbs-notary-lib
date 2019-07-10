@@ -7,6 +7,7 @@
   let file, error, results;
   export let actions;
   export let readFileFromBrowser;
+  export let sha256;
 
   const resetResults = () => {
     error = null;
@@ -16,8 +17,8 @@
   const registerHandler = async () => {
     resetResults();
     try {
-      const hash = await readFileFromBrowser(file);
-      const res = await actions.register(hash);
+      const payload = await readFileFromBrowser(file);
+      const res = await actions.register(payload, "");
       results = res;
       console.log(res);
     } catch (err) {
@@ -28,8 +29,9 @@
 
   const verifyHandler = async () => {
     resetResults();
-    const hash = await readFileFromBrowser(file);
-    const res = await actions.verify(hash);
+    const payload = await readFileFromBrowser(file);
+    const hash = sha256(payload);
+    const res = await actions.verify(hash, payload);
     results = res;
     console.log(res);
   };
