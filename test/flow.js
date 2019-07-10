@@ -21,23 +21,25 @@ function getContractCodeAsBuffer() {
 }
 
 describe("the library", () => {
-    function registerAndVerify(optionalPassword) {
+    function registerAndVerify(shouldEncrypt) {
         return async () => {
             const owner = Orbs.createAccount();
             const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer());
 
-            const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, optionalPassword);
-            const registerResponse = await notary.register("somehash", "Insurance documents");
+            const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, shouldEncrypt);
+            const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
             console.log(registerResponse)
-            expect(registerResponse.txHash).not.to.be.empty;
+            expect(registerResponse.txHash).not.to.be.empty();
 
-            if (optionalPassword) {
+            if (shouldEncrypt) {
                 expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
+                expect(registerResponse.secret).not.to.be.empty();
             } else {
                 expect(registerResponse.metadata).to.be.eql("Insurance documents");
+                expect(registerResponse.secret).to.be.empty();
             }
 
-            const verifyResponse = await notary.verify("somehash");
+            const verifyResponse = await notary.verify(registerResponse.hash, shouldEncrypt ? getContractCodeAsBuffer() : undefined);
             console.log(verifyResponse);
             expect(verifyResponse.verified).to.be.true;
             expect(verifyResponse.metadata).to.be.eql("Insurance documents");
@@ -54,8 +56,8 @@ describe("the library", () => {
         expect(descryptWithPassword(p, encryptWithPassword(p, "hello"))).to.be.eql("hello");
     })
 
-    it("registers and verifies with no encryption", registerAndVerify());
-    it("registers and verifies with encryption", registerAndVerify("password"));
+    // it("registers and verifies without encryption", registerAndVerify(false));
+    it("registers and verifies with encryption", registerAndVerify(true));
 
     it("can calculate hash", () => {
         const hash = sha256(Buffer.from("hello", "ascii"));

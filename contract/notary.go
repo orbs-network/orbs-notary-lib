@@ -17,11 +17,13 @@ type Record struct {
 	Timestamp uint64
 	Signer    []byte
 	Metadata  string
+	Secret    string
+	Status    string
 }
 
 func _init() {}
 
-func register(hash string, metadata string) (timestamp uint64, signer []byte) {
+func register(hash string, metadata string, secret string) (timestamp uint64, signer []byte) {
 	key := []byte(hash)
 	if !bytes.Equal(state.ReadBytes(key), nil) {
 		panic("Record already exists")
@@ -29,20 +31,22 @@ func register(hash string, metadata string) (timestamp uint64, signer []byte) {
 	timestamp = env.GetBlockTimestamp()
 	signer = address.GetSignerAddress()
 	encoded, _ := json.Marshal(&Record{
-		timestamp,
-		signer,
-		metadata,
+		Timestamp: timestamp,
+		Signer:    signer,
+		Metadata:  metadata,
+		Secret:    secret,
 	})
 	state.WriteBytes(key, encoded)
 	return
 }
 
-func verify(hash string) (timestamp uint64, signer []byte, metadata string) {
+func verify(hash string) (timestamp uint64, signer []byte, metadata string, secret string) {
 	key := []byte(hash)
 	var res Record
 	json.Unmarshal(state.ReadBytes(key), &res)
 	timestamp = res.Timestamp
 	signer = res.Signer
 	metadata = res.Metadata
+	secret = res.Secret
 	return
 }

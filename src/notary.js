@@ -1,6 +1,10 @@
 const sjcl = require('sjcl');
-const { argString, encodeHex } = require('orbs-client-sdk/dist/index.es'); // for browser
-// const { argString, encodeHex } = require('orbs-client-sdk'); // for node
+// const { argString, encodeHex } = require('orbs-client-sdk/dist/index.es'); // for browser
+const { argString, encodeHex } = require('orbs-client-sdk'); // for node
+
+function generateSecret() {
+  return sjcl.codec.hex.fromBits(sjcl.random.randomWords(4));
+}
 
 function encryptWithPassword(password, data) {
   return sjcl.encrypt(password, data);
@@ -27,24 +31,23 @@ function readFileFromBrowser(file) {
 };
 
 class Notary {
-  constructor(orbsClient, contractName, publicKey, privateKey, optionalPassword) {
+  constructor(orbsClient, contractName, publicKey, privateKey, shouldEncrypt) {
     this.orbsClient = orbsClient;
     this.contractName = contractName;
     this.publicKey = publicKey;
     this.privateKey = privateKey;
-    this.optionalPassword = optionalPassword;
+    this.shouldEncrypt = shouldEncrypt;
   }
 
-  encrypt(metadata) {
-    return encryptWithPassword(this.optionalPassword, metadata);
-  }
+  async register(payload, metadata) {
+    let secret = "";
+    let hash = sha256(payload);
+    if (this.shouldEncrypt) {
+      secret = generateSecret();
+      const secondHash = sha256(payload + secret);
+      metadata = encryptWithPassword(secondHash, metadata);
+    }
 
-  decrypt(metadata) {
-    return descryptWithPassword(this.optionalPassword, metadata);
-  }
-
-  async register(hash, metadata) {
-    metadata = this.optionalPassword ? this.encrypt(metadata) : metadata;
     const [tx] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
@@ -53,6 +56,7 @@ class Notary {
       [
         argString(hash),
         argString(metadata),
+        argString(secret),
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
@@ -68,10 +72,11 @@ class Notary {
       timestamp: Number(timestamp),
       signer,
       metadata,
+      secret
     };
   }
 
-  async verify(hash) {
+  async verify(hash, optionalOriginalFileContents) {
     const query = this.orbsClient.createQuery(
       this.publicKey,
       this.contractName,
@@ -81,12 +86,14 @@ class Notary {
     const receipt = await this.orbsClient.sendQuery(query);
     const timestamp = Number(receipt.outputArguments[0].value);
     const signer = encodeHex(receipt.outputArguments[1].value);
+    const secret = receipt.outputArguments[3].value;
     const verified = timestamp > 0;
-    let metadata = "";
+    let metadata = receipt.outputArguments[2].value;
 
-    if (verified) {
+    if (verified && optionalOriginalFileContents) {
       try {
-        metadata = this.optionalPassword ? this.decrypt(receipt.outputArguments[2].value) : receipt.outputArguments[2].value;
+        const secondHash = sha256(optionalOriginalFileContents + secret);
+        metadata = descryptWithPassword(secondHash, receipt.outputArguments[2].value);
       } catch (e) {
         throw `Could not decode metadata: ${e.toString()}`;
       }
@@ -98,6 +105,7 @@ class Notary {
       signer,
       metadata,
       verified,
+      secret,
     };
   }
 }
