@@ -49,6 +49,16 @@
       <td class="space">Registered on:</td>
       <td>{formatTimestamp(result.timestamp)}</td>
     </tr>
+    <tr>
+      <td class="space">Metadata:</td>
+      <td>
+      {#if result.verified}
+      {result.metadata}
+      {:else}
+      Encrypted
+      {/if}
+      </td>
+    </tr>
   {/if}
 
   <tr>

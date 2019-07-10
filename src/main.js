@@ -1,6 +1,5 @@
 import App from './App.svelte';
 import { Notary, readFileFromBrowser, sha256 } from './notary';
-// import { readFileFromBrowser } from './notary';
 import {
   createAccount,
   Client,

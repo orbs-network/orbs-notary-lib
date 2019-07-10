@@ -18,8 +18,14 @@
       return;
     }
 
-    dispatch('change', file);
+    dispatch('change', {file});
   };
+
+  const handleMetadata = (metadata) => {
+    console.log('metadata', metadata);
+    dispatch('change', {metadata});
+  };
+
 </script>
 
 <style>
@@ -30,12 +36,17 @@
     color: red;
     font-size: 0.8rem;
   }
-  input {
+  input[type=file] {
     border: none;
+  }
+  input[type=text] {
+    width: 80%;
   }
 </style>
 
 <div class="container">
+  <input type="text" placeholder="Document description" on:change={() => handleMetadata(this.value)}/>
+  <br/>
   <input type="file" on:change={() => handleFile(this.files[0])} />
   {#if !isFileValid}
     <p class="validation">
