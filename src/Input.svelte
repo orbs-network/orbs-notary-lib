@@ -22,7 +22,6 @@
   };
 
   const handleMetadata = (metadata) => {
-    console.log('metadata', metadata);
     dispatch('change', {metadata});
   };
 

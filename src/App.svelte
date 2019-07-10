@@ -8,6 +8,7 @@
   export let actions;
   export let readFileFromBrowser;
   export let sha256;
+  export let txToPrismUrl;
 
   const resetResults = () => {
     error = null;
