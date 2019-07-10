@@ -10,7 +10,7 @@ function encryptWithPassword(password, data) {
   return sjcl.encrypt(password, data);
 }
 
-function descryptWithPassword(password, data) {
+function decryptWithPassword(password, data) {
   return sjcl.decrypt(password, data);
 }
 
@@ -93,7 +93,7 @@ class Notary {
     if (verified && optionalOriginalFileContents) {
       try {
         const secondHash = sha256(optionalOriginalFileContents + secret);
-        metadata = descryptWithPassword(secondHash, receipt.outputArguments[2].value);
+        metadata = decryptWithPassword(secondHash, receipt.outputArguments[2].value);
       } catch (e) {
         throw `Could not decode metadata: ${e.toString()}`;
       }
@@ -114,6 +114,6 @@ module.exports = {
   Notary,
   sha256,
   encryptWithPassword,
-  descryptWithPassword,
+  decryptWithPassword,
   readFileFromBrowser
 }
