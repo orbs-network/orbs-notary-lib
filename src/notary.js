@@ -107,10 +107,74 @@ class Notary {
       secret,
     };
   }
+
+  async setAuditContractAddress(addr) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setAuditContractAddress',
+      [
+        argString(addr)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+}
+
+class Audit {
+  constructor(orbsClient, contractName, publicKey, privateKey) {
+    this.orbsClient = orbsClient;
+    this.contractName = contractName;
+    this.publicKey = publicKey;
+    this.privateKey = privateKey;
+  }
+
+  async setEventSourceContractAddress(addr) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setEventSourceContractAddress',
+      [
+        argString(addr)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async getEventsByHash(hash) {
+    const query = this.orbsClient.createQuery(
+      this.publicKey,
+      this.contractName,
+      'getEventsByHash',
+      [argString(hash)]
+    );
+    const receipt = await this.orbsClient.sendQuery(query);
+    return JSON.parse(receipt.outputArguments[0].value);
+  }
+
 }
 
 module.exports = {
   Notary,
+  Audit,
   sha256,
   encryptWithPassword,
   decryptWithPassword,
