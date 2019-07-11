@@ -57,15 +57,18 @@ func verify(hash string) (timestamp uint64, signer []byte, metadata string, secr
 	return
 }
 
+func _ownerOnly() {
+	if !bytes.Equal(state.ReadBytes(OWNER_KEY), address.GetSignerAddress()) {
+		panic("not allowed!")
+	}
+}
+
 // Audit
 
 var AUDIT_CONTRACT_ADDRESS = []byte("audit_contract_address")
 
 func setAuditContractAddress(addr string) {
-	if !bytes.Equal(state.ReadBytes(OWNER_KEY), address.GetSignerAddress()) {
-		panic("not allowed!")
-	}
-
+	_ownerOnly()
 	state.WriteString(AUDIT_CONTRACT_ADDRESS, addr)
 }
 

@@ -64,10 +64,7 @@ func getEventsByHash(hash string) string {
 var EVENT_SOURCE_CONTRACT_ADDRESS = []byte("event_source_contract_address")
 
 func setEventSourceContractAddress(addr string) {
-	if !bytes.Equal(state.ReadBytes(OWNER_KEY), address.GetSignerAddress()) {
-		panic("not allowed!")
-	}
-
+	_ownerOnly()
 	state.WriteString(EVENT_SOURCE_CONTRACT_ADDRESS, addr)
 }
 
@@ -90,4 +87,10 @@ func _inc(hash string) uint64 {
 
 func _value(hash string) uint64 {
 	return state.ReadUint64(keys.Key(COUNTER_KEY, ".", hash))
+}
+
+func _ownerOnly() {
+	if !bytes.Equal(state.ReadBytes(OWNER_KEY), address.GetSignerAddress()) {
+		panic("not allowed!")
+	}
 }
