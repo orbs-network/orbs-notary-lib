@@ -62,12 +62,12 @@ describe("the library", () => {
         const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
         console.log(registerResponse)
         expect(registerResponse.txHash).not.to.be.empty();
-
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).to.be.empty();
 
         const auditEventsResponse = await audit.getEventsByHash(registerResponse.hash);
-        console.log("!!!!", auditEventsResponse)
+        console.log(auditEventsResponse);
+        expect(auditEventsResponse[0].action).to.be.eql("Register");
 
         const verifyResponse = await notary.verify(registerResponse.hash);
         console.log(verifyResponse);

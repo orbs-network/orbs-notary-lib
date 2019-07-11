@@ -167,9 +167,16 @@ class Audit {
       [argString(hash)]
     );
     const receipt = await this.orbsClient.sendQuery(query);
-    return JSON.parse(receipt.outputArguments[0].value);
+    return JSON.parse(receipt.outputArguments[0].value).map(e => {
+      return {
+        action: e.Action,
+        from: e.From,
+        to: e.To,
+        timestamp: e.Timestamp,
+        signer: '0x'+ e.SignerAddress
+      };
+    });
   }
-
 }
 
 module.exports = {

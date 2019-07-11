@@ -2,7 +2,8 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
+
+	"github.com/orbs-network/contract-external-libraries-go/v1/structs"
 
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/address"
@@ -22,34 +23,33 @@ type Record struct {
 	Status    string
 }
 
-var OWNER_KEY = []byte("OWNER")
+var OWNER_KEY = []byte("owner")
+var STATUS_LIST_KEY = []byte("status_key")
 
 func _init() {
 	state.WriteBytes(OWNER_KEY, address.GetSignerAddress())
 }
 
 func register(hash string, metadata string, secret string) (timestamp uint64, signer []byte) {
-	key := []byte(hash)
-	if !bytes.Equal(state.ReadBytes(key), nil) {
+	if !bytes.Equal(state.ReadBytes([]byte(hash)), nil) {
 		panic("Record already exists")
 	}
 	timestamp = env.GetBlockTimestamp()
 	signer = address.GetSignerAddress()
-	encoded, _ := json.Marshal(&Record{
+	record := Record{
 		Timestamp: timestamp,
 		Signer:    signer,
 		Metadata:  metadata,
 		Secret:    secret,
-	})
-	state.WriteBytes(key, encoded)
+	}
+	structs.WriteStruct(hash, record)
 	_recordAction(hash, "Register", "", "")
 	return
 }
 
 func verify(hash string) (timestamp uint64, signer []byte, metadata string, secret string) {
-	key := []byte(hash)
 	var res Record
-	json.Unmarshal(state.ReadBytes(key), &res)
+	structs.ReadStruct(hash, &res)
 	timestamp = res.Timestamp
 	signer = res.Signer
 	metadata = res.Metadata
