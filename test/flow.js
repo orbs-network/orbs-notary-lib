@@ -33,6 +33,7 @@ describe("the library", () => {
         const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
         console.log(registerResponse)
         expect(registerResponse.txHash).not.to.be.empty();
+        expect(registerResponse.status).to.be.eql("Registered");
 
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).to.be.empty();
@@ -48,7 +49,7 @@ describe("the library", () => {
         expect(verifyResponse.metadata).to.be.empty;
     });
 
-    it.only("registers and verifies without encryption but with audit", async () => {
+    it("registers and verifies without encryption but with audit", async () => {
         const owner = Orbs.createAccount();
         const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer(), "Notary");
         const auditContractName = await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), "Audit"); 
@@ -64,17 +65,19 @@ describe("the library", () => {
         expect(registerResponse.txHash).not.to.be.empty();
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).to.be.empty();
+        expect(registerResponse.status).to.be.eql("Registered");
 
         const auditEventsResponse = await audit.getEventsByHash(registerResponse.hash);
         console.log(auditEventsResponse);
         expect(auditEventsResponse[0].action).to.be.eql("Register");
+        expect(auditEventsResponse[1].action).to.be.eql("UpdateStatus");
+        expect(auditEventsResponse[1].to).to.be.eql("Registered");
 
         const verifyResponse = await notary.verify(registerResponse.hash);
         console.log(verifyResponse);
         expect(verifyResponse.verified).to.be.true;
         expect(verifyResponse.metadata).to.be.eql("Insurance documents");
     });
-
 
     it("registers and verifies with encryption", async () => {
         const owner = Orbs.createAccount();

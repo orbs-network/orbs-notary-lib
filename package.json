@@ -24,7 +24,7 @@
     "deploy": "gh-pages -d public",
     "gamma:start": "gamma-cli start-local",
     "gamma:stop": "gamma-cli stop-local",
-    "notary:local": "gamma-cli deploy ./contract/notary.go -name Notary -signer user1 -env local",
+    "notary:local": "node ./src/deploy.js",
     "notary:testnet": "gamma-cli deploy ./contract/notary.go -name Notary -signer user1 -env validator",
     "test": "mocha test"
   },

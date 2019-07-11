@@ -70,7 +70,7 @@
 
   <tr>
     <td>Status:</td>
-    <td>{result.timestamp !== 0 ? 'Registered' : 'Not Registered'}</td>
+    <td>{result.timestamp !== 0 ? result.status : ''}</td>
   </tr>
 
 </table>

@@ -65,13 +65,15 @@ class Notary {
     }
     const timestamp = receipt.outputArguments[0].value;
     const signer = encodeHex(receipt.outputArguments[1].value);
+    const status = receipt.outputArguments[2].value;
     return {
       txHash,
       hash,
       timestamp: Number(timestamp),
       signer,
       metadata,
-      secret
+      secret,
+      status
     };
   }
 
@@ -86,6 +88,7 @@ class Notary {
     const timestamp = Number(receipt.outputArguments[0].value);
     const signer = encodeHex(receipt.outputArguments[1].value);
     const secret = receipt.outputArguments[3].value;
+    const status = receipt.outputArguments[4].value;
     const verified = timestamp > 0;
     let metadata = receipt.outputArguments[2].value;
 
@@ -105,6 +108,7 @@ class Notary {
       metadata,
       verified,
       secret,
+      status
     };
   }
 
@@ -116,6 +120,49 @@ class Notary {
       'setAuditContractAddress',
       [
         argString(addr)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async setStatusList(statusList) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setStatusList',
+      [
+        argString(statusList)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async updateStatus(hash, status) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'updateStatus',
+      [
+        argString(hash),
+        argString(status)
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
