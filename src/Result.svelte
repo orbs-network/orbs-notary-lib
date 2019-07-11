@@ -1,5 +1,10 @@
 <script>
   export let result;
+
+  const txToPrismUrl = (tx) => {
+    return `${process.env.ORBS_PRISM_URL}/vchains/${process.env.ORBS_VCHAIN}/tx/${tx}`;
+  };
+
   const formatTimestamp = timestamp =>
     new Date(timestamp / 1000 / 1000).toLocaleString('en-gb', {
       hour12: false,
@@ -36,7 +41,9 @@
   {#if result.txHash}
     <tr>
       <td class="space">Tx hash:</td>
-      <td class="wrap">{result.txHash}</td>
+      <td class="wrap">
+      <a href="{txToPrismUrl(result.txHash)}" target="_blank">{result.txHash}</a>
+      </td>
     </tr>
   {/if}
 
@@ -48,6 +55,16 @@
     <tr>
       <td class="space">Registered on:</td>
       <td>{formatTimestamp(result.timestamp)}</td>
+    </tr>
+    <tr>
+      <td class="space">Metadata:</td>
+      <td>
+      {#if result.verified}
+      {result.metadata}
+      {:else}
+      Encrypted
+      {/if}
+      </td>
     </tr>
   {/if}
 

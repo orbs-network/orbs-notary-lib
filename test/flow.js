@@ -1,4 +1,4 @@
-const { Notary, sha256, encryptWithPassword, descryptWithPassword } = require("../src/notary");
+const { Notary, sha256, encryptWithPassword, decryptWithPassword } = require("../src/notary");
 const Orbs = require("orbs-client-sdk");
 const expect = require("expect.js");
 
@@ -21,41 +21,61 @@ function getContractCodeAsBuffer() {
 }
 
 describe("the library", () => {
-    function registerAndVerify(optionalPassword) {
-        return async () => {
-            const owner = Orbs.createAccount();
-            const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer());
+    it("registers and verifies without encryption", async () => {
+        const owner = Orbs.createAccount();
+        const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer());
 
-            const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, optionalPassword);
-            const registerResponse = await notary.register("somehash", "Insurance documents");
-            console.log(registerResponse)
-            expect(registerResponse.txHash).not.to.be.empty;
+        const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey);
+        const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
+        console.log(registerResponse)
+        expect(registerResponse.txHash).not.to.be.empty();
 
-            if (optionalPassword) {
-                expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
-            } else {
-                expect(registerResponse.metadata).to.be.eql("Insurance documents");
-            }
+        expect(registerResponse.metadata).to.be.eql("Insurance documents");
+        expect(registerResponse.secret).to.be.empty();
 
-            const verifyResponse = await notary.verify("somehash");
-            console.log(verifyResponse);
-            expect(verifyResponse.verified).to.be.true;
-            expect(verifyResponse.metadata).to.be.eql("Insurance documents");
+        const verifyResponse = await notary.verify(registerResponse.hash);
+        console.log(verifyResponse);
+        expect(verifyResponse.verified).to.be.true;
+        expect(verifyResponse.metadata).to.be.eql("Insurance documents");
 
-            const verifyResponseForUnknownHash = await notary.verify("unknown-hash");
-            console.log(verifyResponseForUnknownHash);
-            expect(verifyResponseForUnknownHash.verified).to.be.false;
-            expect(verifyResponse.metadata).to.be.empty;
-        };
-    }
+        const verifyResponseForUnknownHash = await notary.verify("unknown-hash");
+        console.log(verifyResponseForUnknownHash);
+        expect(verifyResponseForUnknownHash.verified).to.be.false;
+        expect(verifyResponse.metadata).to.be.empty;
+    });
+
+    it("registers and verifies with encryption", async () => {
+        const owner = Orbs.createAccount();
+        const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer());
+
+        const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, true);
+        const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
+        console.log(registerResponse)
+        expect(registerResponse.txHash).not.to.be.empty();
+
+        expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
+        expect(registerResponse.secret).not.to.be.empty();
+
+        const verifyResponse = await notary.verify(registerResponse.hash, getContractCodeAsBuffer());
+        console.log(verifyResponse);
+        expect(verifyResponse.verified).to.be.true;
+        expect(verifyResponse.metadata).to.be.eql("Insurance documents");
+
+        const verifyResponseWithoutOriginalFile = await notary.verify(registerResponse.hash);
+        console.log(verifyResponseWithoutOriginalFile);
+        expect(verifyResponseWithoutOriginalFile.verified).to.be.true;
+        expect(verifyResponseWithoutOriginalFile.metadata).not.to.be.eql("Insurance documents");
+
+        const verifyResponseForUnknownHash = await notary.verify("unknown-hash");
+        console.log(verifyResponseForUnknownHash);
+        expect(verifyResponseForUnknownHash.verified).to.be.false;
+        expect(verifyResponse.metadata).to.be.empty;
+    });
 
     it("can encrypt and decrypt metadata", () => {
         const p = "password";
-        expect(descryptWithPassword(p, encryptWithPassword(p, "hello"))).to.be.eql("hello");
+        expect(decryptWithPassword(p, encryptWithPassword(p, "hello"))).to.be.eql("hello");
     })
-
-    it("registers and verifies with no encryption", registerAndVerify());
-    it("registers and verifies with encryption", registerAndVerify("password"));
 
     it("can calculate hash", () => {
         const hash = sha256(Buffer.from("hello", "ascii"));

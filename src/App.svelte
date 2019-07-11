@@ -4,9 +4,11 @@
   import Result from './Result.svelte';
   import Explanations from './Explanations.svelte';
 
-  let file, error, results;
+  let file, metadata, error, results;
   export let actions;
   export let readFileFromBrowser;
+  export let sha256;
+  export let txToPrismUrl;
 
   const resetResults = () => {
     error = null;
@@ -16,8 +18,8 @@
   const registerHandler = async () => {
     resetResults();
     try {
-      const hash = await readFileFromBrowser(file);
-      const res = await actions.register(hash);
+      const payload = await readFileFromBrowser(file);
+      const res = await actions.register(payload, metadata || "");
       results = res;
       console.log(res);
     } catch (err) {
@@ -28,8 +30,9 @@
 
   const verifyHandler = async () => {
     resetResults();
-    const hash = await readFileFromBrowser(file);
-    const res = await actions.verify(hash);
+    const payload = await readFileFromBrowser(file);
+    const hash = sha256(payload);
+    const res = await actions.verify(hash, payload);
     results = res;
     console.log(res);
   };
@@ -57,7 +60,14 @@
   <Explanations />
   <Input
     on:change={ev => {
-      (file = ev.detail), resetResults();
+      if (ev.detail.file) {
+        file = ev.detail.file;
+      }
+
+      if (ev.detail.metadata) {
+        metadata = ev.detail.metadata;
+      }
+      resetResults();
     }} />
   <div class="actions">
     <button disabled={!file} on:click={registerHandler}>Register</button>
