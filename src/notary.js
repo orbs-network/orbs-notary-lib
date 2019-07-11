@@ -214,7 +214,8 @@ class Audit {
       [argString(hash)]
     );
     const receipt = await this.orbsClient.sendQuery(query);
-    return JSON.parse(receipt.outputArguments[0].value).map(e => {
+    const results = JSON.parse(receipt.outputArguments[0].value) || [];
+    return results.map(e => {
       return {
         action: e.Action,
         from: e.From,

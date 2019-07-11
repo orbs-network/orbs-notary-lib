@@ -3,9 +3,11 @@
   import Error from './Error.svelte';
   import Result from './Result.svelte';
   import Explanations from './Explanations.svelte';
+  import Audit from './Audit.svelte';
 
-  let file, metadata, error, results;
+  let file, metadata, error, results, events;
   export let actions;
+  export let audit;
   export let readFileFromBrowser;
   export let sha256;
   export let txToPrismUrl;
@@ -13,6 +15,7 @@
   const resetResults = () => {
     error = null;
     results = null;
+    events = null;
   };
 
   const registerHandler = async () => {
@@ -22,6 +25,7 @@
       const res = await actions.register(payload, metadata || "");
       results = res;
       console.log(res);
+      events = await audit.getEventsByHash(res.hash);
     } catch (err) {
       error = { message: err };
       console.error(err);
@@ -35,6 +39,11 @@
     const res = await actions.verify(hash, payload);
     results = res;
     console.log(res);
+    if (!res.verified) {
+      error = {message: 'Not verified'};
+    }
+
+    events = await audit.getEventsByHash(hash);
   };
 </script>
 
@@ -78,5 +87,9 @@
   {/if}
   {#if results}
     <Result result={results} />
+  {/if}
+
+  {#if events}
+    <Audit events={events} />
   {/if}
 </div>
