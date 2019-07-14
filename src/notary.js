@@ -154,6 +154,19 @@ class Notary {
     }
   }
 
+  async getStatusList() {
+    const query = this.orbsClient.createQuery(
+      this.publicKey,
+      this.contractName,
+      'getStatusList',
+      []
+    );
+    const receipt = await this.orbsClient.sendQuery(query);
+    const statusList = receipt.outputArguments[0].value;
+
+    return statusList.split(',');
+  }
+
   async updateStatus(hash, status) {
     const [tx] = this.orbsClient.createTransaction(
       this.publicKey,
