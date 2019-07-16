@@ -5,7 +5,7 @@ import {
   Client,
   encodeHex,
   decodeHex
-} from 'orbs-client-sdk/dist/index.es';
+} from 'orbs-client-sdk';
 
 const SENDER_PUBLIC_KEY = 'sender_public_key';
 const SENDER_PRIVATE_KEY = 'sender_private_key';
