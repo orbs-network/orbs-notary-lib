@@ -1,6 +1,6 @@
 const sjcl = require('sjcl');
-const { argString, encodeHex } = require('orbs-client-sdk/dist/index.es'); // for browser
-// const { argString, encodeHex } = require('orbs-client-sdk'); // for node
+const { argString, encodeHex } = require('orbs-client-sdk'); // for node
+const Orbs = require('orbs-client-sdk');
 
 function generateSecret() {
   return sjcl.codec.hex.fromBits(sjcl.random.randomWords(4));
@@ -65,13 +65,15 @@ class Notary {
     }
     const timestamp = receipt.outputArguments[0].value;
     const signer = encodeHex(receipt.outputArguments[1].value);
+    const status = receipt.outputArguments[2].value;
     return {
       txHash,
       hash,
       timestamp: Number(timestamp),
       signer,
       metadata,
-      secret
+      secret,
+      status
     };
   }
 
@@ -86,6 +88,7 @@ class Notary {
     const timestamp = Number(receipt.outputArguments[0].value);
     const signer = encodeHex(receipt.outputArguments[1].value);
     const secret = receipt.outputArguments[3].value;
+    const status = receipt.outputArguments[4].value;
     const verified = timestamp > 0;
     let metadata = receipt.outputArguments[2].value;
 
@@ -105,12 +108,141 @@ class Notary {
       metadata,
       verified,
       secret,
+      status
     };
+  }
+
+  async setAuditContractAddress(addr) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setAuditContractAddress',
+      [
+        argString(addr)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async setStatusList(statusList) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setStatusList',
+      [
+        argString(statusList)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async getStatusList() {
+    const query = this.orbsClient.createQuery(
+      this.publicKey,
+      this.contractName,
+      'getStatusList',
+      []
+    );
+    const receipt = await this.orbsClient.sendQuery(query);
+    const statusList = receipt.outputArguments[0].value;
+
+    return statusList.split(',');
+  }
+
+  async updateStatus(hash, status) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'updateStatus',
+      [
+        argString(hash),
+        argString(status)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+}
+
+class Audit {
+  constructor(orbsClient, contractName, publicKey, privateKey) {
+    this.orbsClient = orbsClient;
+    this.contractName = contractName;
+    this.publicKey = publicKey;
+    this.privateKey = privateKey;
+  }
+
+  async setEventSourceContractAddress(addr) {
+    const [tx] = this.orbsClient.createTransaction(
+      this.publicKey,
+      this.privateKey,
+      this.contractName,
+      'setEventSourceContractAddress',
+      [
+        argString(addr)
+      ],
+    );
+    const receipt = await this.orbsClient.sendTransaction(tx);
+    const txHash = encodeHex(receipt.txHash);
+    if (receipt.executionResult !== 'SUCCESS') {
+      return Promise.reject(receipt.outputArguments[0].value);
+    }
+
+    return {
+      txHash
+    }
+  }
+
+  async getEventsByHash(hash) {
+    const query = this.orbsClient.createQuery(
+      this.publicKey,
+      this.contractName,
+      'getEventsByHash',
+      [argString(hash)]
+    );
+    const receipt = await this.orbsClient.sendQuery(query);
+    const results = JSON.parse(receipt.outputArguments[0].value) || [];
+    return results.map(e => {
+      return {
+        action: e.Action,
+        from: e.From,
+        to: e.To,
+        timestamp: e.Timestamp,
+        signer: '0x'+ e.SignerAddress
+      };
+    });
   }
 }
 
 module.exports = {
   Notary,
+  Audit,
   sha256,
   encryptWithPassword,
   decryptWithPassword,
