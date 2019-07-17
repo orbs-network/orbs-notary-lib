@@ -20,6 +20,7 @@ if (!localStorage.getItem(SENDER_PUBLIC_KEY)) {
 
 const publicKey = decodeHex(localStorage.getItem(SENDER_PUBLIC_KEY));
 const privateKey = decodeHex(localStorage.getItem(SENDER_PRIVATE_KEY));
+const address = localStorage.getItem(SENDER_ADDRESS);
 const orbsClient = new Client(
   process.env.ORBS_NODE_ADDRESS,
   process.env.ORBS_VCHAIN,
@@ -35,7 +36,9 @@ const app = new App({
     actions,
     audit,
     readFileFromBrowser,
-    sha256
+    sha256,
+    privateKey: encodeHex(privateKey),
+    address,
   }
 });
 

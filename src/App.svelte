@@ -4,6 +4,7 @@
   import Result from './Result.svelte';
   import Explanations from './Explanations.svelte';
   import Audit from './Audit.svelte';
+  import Keys from './Keys.svelte';
 
   let file, metadata, error, results, events, status;
   export let actions;
@@ -11,6 +12,7 @@
   export let readFileFromBrowser;
   export let sha256;
   export let txToPrismUrl;
+  export let privateKey, address;
 
   const resetResults = () => {
     error = null;
@@ -81,6 +83,7 @@
 
 <div class="container">
   <h1>Orbs Notary</h1>
+  <Keys privateKey={privateKey} address={address}/>
   <Explanations />
   <Input
     on:change={ev => {
