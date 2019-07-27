@@ -10,7 +10,9 @@ async function deploy(client, owner, code, contractName) {
 }
 
 function getClient() {
-    return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
+    const endpoint = process.env.ORBS_NODE_ADDRESS || "http://localhost:8080";
+    const chain = Number(process.env.ORBS_VCHAIN) || 42;
+    return new Orbs.Client(endpoint, chain, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
 }
 
 function getContractCodeAsBuffer() {
