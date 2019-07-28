@@ -47,7 +47,7 @@ class Notary {
       metadata = encryptWithPassword(secondHash, metadata);
     }
 
-    const [tx] = this.orbsClient.createTransaction(
+    const [tx, txId] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       this.contractName,
@@ -59,7 +59,6 @@ class Notary {
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
-    const txHash = encodeHex(receipt.txHash);
     if (receipt.executionResult !== 'SUCCESS') {
       return Promise.reject(receipt.outputArguments[0].value);
     }
@@ -67,7 +66,7 @@ class Notary {
     const signer = encodeHex(receipt.outputArguments[1].value);
     const status = receipt.outputArguments[2].value;
     return {
-      txHash,
+      txId,
       hash,
       timestamp: Number(timestamp),
       signer,
@@ -113,7 +112,7 @@ class Notary {
   }
 
   async setAuditContractAddress(addr) {
-    const [tx] = this.orbsClient.createTransaction(
+    const [tx, txId] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       this.contractName,
@@ -123,18 +122,17 @@ class Notary {
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
-    const txHash = encodeHex(receipt.txHash);
     if (receipt.executionResult !== 'SUCCESS') {
       return Promise.reject(receipt.outputArguments[0].value);
     }
 
     return {
-      txHash
+      txId
     }
   }
 
   async setStatusList(statusList) {
-    const [tx] = this.orbsClient.createTransaction(
+    const [tx, txId] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       this.contractName,
@@ -144,13 +142,12 @@ class Notary {
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
-    const txHash = encodeHex(receipt.txHash);
     if (receipt.executionResult !== 'SUCCESS') {
       return Promise.reject(receipt.outputArguments[0].value);
     }
 
     return {
-      txHash
+      txId
     }
   }
 
@@ -168,7 +165,7 @@ class Notary {
   }
 
   async updateStatus(hash, status) {
-    const [tx] = this.orbsClient.createTransaction(
+    const [tx, txId] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       this.contractName,
@@ -179,13 +176,12 @@ class Notary {
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
-    const txHash = encodeHex(receipt.txHash);
     if (receipt.executionResult !== 'SUCCESS') {
       return Promise.reject(receipt.outputArguments[0].value);
     }
 
     return {
-      txHash
+      txId
     }
   }
 }
@@ -199,7 +195,7 @@ class Audit {
   }
 
   async setEventSourceContractAddress(addr) {
-    const [tx] = this.orbsClient.createTransaction(
+    const [tx, txId] = this.orbsClient.createTransaction(
       this.publicKey,
       this.privateKey,
       this.contractName,
@@ -209,13 +205,12 @@ class Audit {
       ],
     );
     const receipt = await this.orbsClient.sendTransaction(tx);
-    const txHash = encodeHex(receipt.txHash);
     if (receipt.executionResult !== 'SUCCESS') {
       return Promise.reject(receipt.outputArguments[0].value);
     }
 
     return {
-      txHash
+      txId
     }
   }
 
