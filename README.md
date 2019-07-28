@@ -62,7 +62,7 @@ The `notary.register()` takes as parameters:
 - A descriptive name for that file
 
 The response object will contain the following fields:
-- `txHash`: The transaction hash of the register transaction on the Orbs blockchain
+- `txId`: The transaction id of the register transaction on the Orbs blockchain
 - `hash`: The document hash (the document that was registered)
 - `timestamp`: The unix timestamp in nanoseconds of the block of the registered transaction
 - `signer`: The hex encoded address of the orbs account which signed the transaction
@@ -114,7 +114,7 @@ The purpose of this api is to change the status text
 The `notary.setStatusList()` takes:
 - A list of comma separated values
 
-It returns the txhash of the transaction which changed the status list text
+It returns the txId of the transaction which changed the status list text
 
 After the status list text changes, the first status text will be assigned automatically to event new document registered.
 
@@ -127,7 +127,7 @@ The `notary.updateStatus()` takes:
 - The hash of the document to update
 - The status text to update to. This text must be part of the allowed status list
 
-It returns the txhash of the transaction which updated the status of the document
+It returns the txId of the transaction which updated the status of the document
 
 Currently, anyone who can send a transaction on the network will be able to update the status for any document, as long as the hash of the document is available.
 
@@ -140,7 +140,7 @@ await notary.setAuditContractAddress(addr)
 The `notary.setAuditContractAddress()` takes:
 - The contract name of the deployed Audit contract as a string
 
-It returns the txhash of the transaction which linked the contracts
+It returns the txId of the transaction which linked the contracts
 
 ## Encryption flow
 When the notary library is instantiated, it is possible to request that it uses encryption.
@@ -198,7 +198,7 @@ await audit.setEventSourceContractAddress(addr)
 The `audit.setEventSourceContractAddress()` takes:
 - The contract name of the deployed Notary contract as a string
 
-It returns the txhash of the transaction which linked the contracts
+It returns the txId of the transaction which linked the contracts
 
 ### Getting the audit trail of changes to a document
 ```javascript

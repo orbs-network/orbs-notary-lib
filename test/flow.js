@@ -32,7 +32,7 @@ describe("the library", () => {
         const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey);
         const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
         console.log(registerResponse)
-        expect(registerResponse.txHash).not.to.be.empty();
+        expect(registerResponse.txId).not.to.be.empty();
         expect(registerResponse.status).to.be.eql("Registered");
 
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
@@ -62,7 +62,7 @@ describe("the library", () => {
 
         const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
         console.log(registerResponse)
-        expect(registerResponse.txHash).not.to.be.empty();
+        expect(registerResponse.txId).not.to.be.empty();
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).to.be.empty();
         expect(registerResponse.status).to.be.eql("Registered");
@@ -86,7 +86,7 @@ describe("the library", () => {
         const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, true);
         const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
         console.log(registerResponse)
-        expect(registerResponse.txHash).not.to.be.empty();
+        expect(registerResponse.txId).not.to.be.empty();
 
         expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
         expect(registerResponse.secret).not.to.be.empty();

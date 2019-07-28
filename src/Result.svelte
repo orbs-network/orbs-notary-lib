@@ -38,11 +38,11 @@
     <td class="wrap">{result.hash}</td>
   </tr>
 
-  {#if result.txHash}
+  {#if result.txId}
     <tr>
       <td class="space">Tx hash:</td>
       <td class="wrap">
-      <a href="{txToPrismUrl(result.txHash)}" target="_blank">{result.txHash}</a>
+      <a href="{txToPrismUrl(result.txId)}" target="_blank">{result.txId}</a>
       </td>
     </tr>
   {/if}
