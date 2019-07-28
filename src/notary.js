@@ -18,16 +18,6 @@ function sha256(binary) {
   return sjcl.codec.hex.fromBits(hash);
 };
 
-function readFileFromBrowser(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      resolve(ev.target.result);
-    };
-    reader.readAsBinaryString(file);
-  });
-};
-
 class Notary {
   constructor(orbsClient, contractName, publicKey, privateKey, shouldEncrypt) {
     this.orbsClient = orbsClient;
@@ -239,6 +229,5 @@ module.exports = {
   Audit,
   sha256,
   encryptWithPassword,
-  decryptWithPassword,
-  readFileFromBrowser
+  decryptWithPassword
 }

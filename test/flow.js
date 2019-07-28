@@ -1,4 +1,4 @@
-const { Notary, Audit, sha256, encryptWithPassword, decryptWithPassword } = require("../src/notary");
+const { Notary, Audit, sha256, encryptWithPassword, decryptWithPassword } = require("../index");
 const Orbs = require("orbs-client-sdk");
 const expect = require("expect.js");
 

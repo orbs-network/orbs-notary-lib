@@ -16,17 +16,21 @@ function getClient() {
 }
 
 function getContractCodeAsBuffer() {
-    return fs.readFileSync("./contract/notary/notary.go");
+    return fs.readFileSync(`${__dirname}/../contract/notary/notary.go`);
 }
 
 function getAuditContractCodeAsBuffer() {
-    return fs.readFileSync("./contract/audit/audit.go");
+    return fs.readFileSync(`${__dirname}/../contract/audit/audit.go`);
 }
 
-async function setup() {
+async function setup(options) {
+    const opt = options || {};
+    const notaryName = opt.notary || "Notary";
+    const auditName = opt.audit || "Audit";
+
     const owner = Orbs.createAccount();
-    await deploy(getClient(), owner, getContractCodeAsBuffer(), "Notary");
-    await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), "Audit"); 
+    await deploy(getClient(), owner, getContractCodeAsBuffer(), notaryName);
+    await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), auditName); 
     
     const notary = new Notary(getClient(), "Notary", owner.publicKey, owner.privateKey);
     const audit = new Audit(getClient(), "Audit", owner.publicKey, owner.privateKey);
@@ -35,11 +39,8 @@ async function setup() {
     await audit.setEventSourceContractAddress("Notary");
 }
 
-(async () => {
-    try {
-        await setup();
-        console.log("Success!")
-    } catch(e) {
-        console.log(e);
-    }
-})();
+module.exports = {
+    setup,
+    getContractCodeAsBuffer,
+    getAuditContractCodeAsBuffer
+}
