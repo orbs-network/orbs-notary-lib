@@ -1,24 +1,17 @@
-# Notary
+# Orbs Notary library
 
 > Notary serves a simple purpose - store and verify documents.
 
-## Getting started
-### Running client
-1. Install dependencies: `npm install` (skip if done before)
-1. Start local dev server: `npm run dev`
-1. Go to `http://localhost:9000`
+## Testing
 
-### Starting up gamma
-1. Start up gamma server: `npm run gamma:start`
-1. Deploy the notary contract: `npm run notary:local`
+Running tests requires [gamma-cli](https://github.com/orbs-network/gamma-cli) - Orbs local blockchain.
 
-## Deployment
-1. Deploy statics: `npm run deploy`
+`npm test`
 
 ## High level flow
 The library consists of two smart contracts and two javascript interfaces that communicate with these contracts.
 
-A reference implementation of the different flows documented can be found at the E2E tests here: https://github.com/orbs-network/notary/blob/master/test/flow.js
+A reference implementation of the different flows documented can be found at the E2E tests here: https://github.com/orbs-network/orbs-notary-lib/blob/master/test/flow.js
 
 ### The Notary contract
 This is the main contract of the library, the goal of this contract is to register document hashes paired with metadata (encrypted or plain text and a status field) and track the authenticity of the registered hash and its status.
