@@ -1,7 +1,8 @@
 
 const Orbs = require("orbs-client-sdk");
 const fs = require("fs");
-const { Notary, Audit } = require("./notary");
+const { Notary } = require("./notary");
+const { Audit } = require("./audit");
 
 async function deploy(client, owner, code, contractName) {
     const [ tx, txid ] = client.createTransaction(owner.publicKey, owner.privateKey, "_Deployments", "deployService", [Orbs.argString(contractName), Orbs.argUint32(1), Orbs.argBytes(code)])

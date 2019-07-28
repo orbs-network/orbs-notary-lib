@@ -4,7 +4,7 @@ const expect = require("expect.js");
 
 async function deploy(client, owner, code, prefix) {
     const contractName = `${prefix}${new Date().getTime()}`;
-    const [ tx, txid ] = client.createTransaction(owner.publicKey, owner.privateKey, "_Deployments", "deployService", [Orbs.argString(contractName), Orbs.argUint32(1), Orbs.argBytes(code)])
+    const [tx, txid] = client.createTransaction(owner.publicKey, owner.privateKey, "_Deployments", "deployService", [Orbs.argString(contractName), Orbs.argUint32(1), Orbs.argBytes(code)])
     const result = await client.sendTransaction(tx);
 
     console.log(result);
@@ -52,7 +52,7 @@ describe("the library", () => {
     it("registers and verifies without encryption but with audit", async () => {
         const owner = Orbs.createAccount();
         const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer(), "Notary");
-        const auditContractName = await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), "Audit"); 
+        const auditContractName = await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), "Audit");
 
         const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey);
         const audit = new Audit(getClient(), auditContractName, owner.publicKey, owner.privateKey);

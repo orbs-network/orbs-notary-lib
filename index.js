@@ -1,5 +1,7 @@
 const { setup, getContractCodeAsBuffer, getAuditContractCodeAsBuffer } = require("./src/deploy");
-const { Notary, Audit, encryptWithPassword, decryptWithPassword, sha256 } = require("./src/notary");
+const { Notary } = require("./src/notary");
+const { Audit } = require("./src/audit");
+const { encryptWithPassword, decryptWithPassword, sha256 } = require("./src/crypto");
 
 module.exports = {
     // deploy
@@ -10,6 +12,8 @@ module.exports = {
     // notary
     Notary,
     Audit,
+
+    // crypto
     encryptWithPassword,
     decryptWithPassword,
     sha256
