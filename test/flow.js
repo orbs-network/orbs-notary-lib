@@ -1,36 +1,30 @@
-const { Notary, Audit, sha256, encryptWithPassword, decryptWithPassword } = require("../index");
+const { Notary, Audit, sha256, encryptWithPassword, decryptWithPassword, setup } = require("../index");
 const Orbs = require("orbs-client-sdk");
 const expect = require("expect.js");
 
-async function deploy(client, owner, code, prefix) {
-    const contractName = `${prefix}${new Date().getTime()}`;
-    const [tx, txid] = client.createTransaction(owner.publicKey, owner.privateKey, "_Deployments", "deployService", [Orbs.argString(contractName), Orbs.argUint32(1), Orbs.argBytes(code)])
-    const result = await client.sendTransaction(tx);
-
-    console.log(result);
-
-    return contractName;
+function getTestFileAsBuffer() {
+    return require("fs").readFileSync(`${__dirname}/../package.json`);
 }
 
 function getClient() {
-    return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
-}
-
-function getContractCodeAsBuffer() {
-    return require("fs").readFileSync("./contract/notary/notary.go");
-}
-
-function getAuditContractCodeAsBuffer() {
-    return require("fs").readFileSync("./contract/audit/audit.go");
+    const endpoint = process.env.ORBS_NODE_ADDRESS || "http://localhost:8080";
+    const chain = Number(process.env.ORBS_VCHAIN) || 42;
+    return new Orbs.Client(endpoint, chain, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
 }
 
 describe("the library", () => {
     it("registers and verifies without encryption", async () => {
         const owner = Orbs.createAccount();
-        const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer());
+        const notaryContractName = `Notary${new Date().getTime()}`;
+        const auditContractName = `Audit${new Date().getTime()}`;
 
-        const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey);
-        const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
+        await setup(getClient(), owner, {
+            notaryContractName,
+            auditContractName
+        });
+
+        const notary = new Notary(getClient(), notaryContractName, owner.publicKey, owner.privateKey);
+        const registerResponse = await notary.register(getTestFileAsBuffer(), "Insurance documents");
         console.log(registerResponse)
         expect(registerResponse.txId).not.to.be.empty();
         expect(registerResponse.status).to.be.eql("Registered");
@@ -51,16 +45,21 @@ describe("the library", () => {
 
     it("registers and verifies without encryption but with audit", async () => {
         const owner = Orbs.createAccount();
-        const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer(), "Notary");
-        const auditContractName = await deploy(getClient(), owner, getAuditContractCodeAsBuffer(), "Audit");
+        const notaryContractName = `Notary${new Date().getTime()}`;
+        const auditContractName = `Audit${new Date().getTime()}`;
 
-        const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey);
+        await setup(getClient(), owner, {
+            notaryContractName,
+            auditContractName
+        });
+
+        const notary = new Notary(getClient(), notaryContractName, owner.publicKey, owner.privateKey);
         const audit = new Audit(getClient(), auditContractName, owner.publicKey, owner.privateKey);
 
         await notary.setAuditContractAddress(auditContractName);
-        await audit.setEventSourceContractAddress(contractName);
+        await audit.setEventSourceContractAddress(notaryContractName);
 
-        const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
+        const registerResponse = await notary.register(getTestFileAsBuffer(), "Insurance documents");
         console.log(registerResponse)
         expect(registerResponse.txId).not.to.be.empty();
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
@@ -81,17 +80,23 @@ describe("the library", () => {
 
     it("registers and verifies with encryption", async () => {
         const owner = Orbs.createAccount();
-        const contractName = await deploy(getClient(), owner, getContractCodeAsBuffer(), "Notary");
+        const notaryContractName = `Notary${new Date().getTime()}`;
+        const auditContractName = `Audit${new Date().getTime()}`;
 
-        const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, true);
-        const registerResponse = await notary.register(getContractCodeAsBuffer(), "Insurance documents");
+        await setup(getClient(), owner, {
+            notaryContractName,
+            auditContractName
+        });
+
+        const notary = new Notary(getClient(), notaryContractName, owner.publicKey, owner.privateKey, true);
+        const registerResponse = await notary.register(getTestFileAsBuffer(), "Insurance documents");
         console.log(registerResponse)
         expect(registerResponse.txId).not.to.be.empty();
 
         expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
         expect(registerResponse.secret).not.to.be.empty();
 
-        const verifyResponse = await notary.verify(registerResponse.hash, getContractCodeAsBuffer());
+        const verifyResponse = await notary.verify(registerResponse.hash, getTestFileAsBuffer());
         console.log(verifyResponse);
         expect(verifyResponse.verified).to.be.true;
         expect(verifyResponse.metadata).to.be.eql("Insurance documents");
