@@ -21,6 +21,29 @@ This is an auxiliary contract that allows the customer to track any changes to t
 
 ## Notary Library Reference
 
+### Deploying contracts
+```javascript
+function getClient() {
+    return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
+}
+
+const owner = Orbs.createAccount();
+
+await setup(getClient(), owner, {
+    notaryContractName: "Notary",
+    auditContractName: "Audit
+})
+```
+
+`setup` function will deploy two new contract and bind them to work together. If you want to use pre-deployed contract, simply instantiate `Notary` and `Audit` objects with names of already deployed contracts as parameters.
+
+`setup` function tarkes as parameters:
+- Orbs client (client-sdk)
+- Orbs account (client-sdk)
+- An object containing names of the contracts to deploy (does not matter how you name them, but they should be different)
+
+`setup` function does not return anything.
+
 ### Creating the Library object
 ```javascript
 function getClient() {

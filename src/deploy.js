@@ -26,11 +26,6 @@ async function setup(client, owner, { notaryContractName, auditContractName }) {
 
     await notary.setAuditContractAddress(auditContractName);
     await audit.setEventSourceContractAddress(notaryContractName);
-
-    return {
-        notaryContractName,
-        auditContractName
-    };
 }
 
 module.exports = {
