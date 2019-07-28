@@ -1,6 +1,5 @@
 const sjcl = require('sjcl');
 const { argString, encodeHex } = require('orbs-client-sdk'); // for node
-const Orbs = require('orbs-client-sdk');
 
 function generateSecret() {
   return sjcl.codec.hex.fromBits(sjcl.random.randomWords(4));
