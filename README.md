@@ -2,12 +2,6 @@
 
 > Notary serves a simple purpose - store and verify documents.
 
-## Testing
-
-Running tests requires [gamma-cli](https://github.com/orbs-network/gamma-cli) - Orbs local blockchain.
-
-`npm test`
-
 ## High level flow
 The library consists of two smart contracts and two javascript interfaces that communicate with these contracts.
 
@@ -21,7 +15,20 @@ This is an auxiliary contract that allows the customer to track any changes to t
 
 ## Notary Library Reference
 
-### Deploying contracts
+### Importing the library
+
+```js
+import { setup, Notary, Audit, sha256 } from "orbs-notary-lib"
+```
+
+or
+
+```js
+const { setup, Notary, Audit, sha256 } = require("orbs-notary-lib")
+```
+
+### Deploying smart contracts
+
 ```javascript
 function getClient() {
     return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
@@ -29,30 +36,36 @@ function getClient() {
 
 const owner = Orbs.createAccount();
 
+const notaryContractName = "Notary";
+const auditContractName = "Audit";
+
 await setup(getClient(), owner, {
-    notaryContractName: "Notary",
-    auditContractName: "Audit
+    notaryContractName,
+    auditContractName
 })
 ```
 
-`setup` function will deploy two new contract and bind them to work together. If you want to use pre-deployed contract, simply instantiate `Notary` and `Audit` objects with names of already deployed contracts as parameters.
+`setup` function will deploy two new contracts and bind them to work together. This only needs to be done once. Save the contract names for later use.
 
-`setup` function tarkes as parameters:
+Each contract (`Notary` and `Audit`) has their specific role but they need to be made aware of each other: `Notary` needs to send event data to `Audit` and because of that needs to know its name. `Audit` needs to accept the data from `Notary` and because of that needs to know its name.
+
+`setup` function takes as parameters:
 - Orbs client (client-sdk)
 - Orbs account (client-sdk)
 - An object containing names of the contracts to deploy (does not matter how you name them, but they should be different)
 
 `setup` function does not return anything.
 
-### Creating the Library object
+### Initializing a Notary instance
 ```javascript
 function getClient() {
     return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
 }
 
 const owner = Orbs.createAccount();
+const notaryContractName = "Notary";
 
-const notary = new Notary(getClient(), contractName, owner.publicKey, owner.privateKey, false);
+const notary = new Notary(getClient(), notaryContractName, owner.publicKey, owner.privateKey, false);
 ```
 
 The `new Notary()` takes as parameters:
@@ -67,7 +80,7 @@ Because of the nature of this library, that account is not important per se as t
 
 More information on encryption is available in a dedicated section below.
 
-### Register a new document
+### Register a document
 ```javascript
 const document = require("fs").readFileSync("/path/to/file.pdf");
 const registerResponse = await notary.register(document, "Insurance documents");
@@ -89,13 +102,13 @@ The response object will contain the following fields:
 ### Verify a document
 ```javascript
 const document = require("fs").readFileSync("/path/to/file.pdf");
-const documentHash = sha256(documentHash);
+const documentHash = sha256(document);
 const verifyResponse = await notary.verify(documentHash, document);
 ```
 
 The `notary.verify()` takes as parameters:
 - A hash of the document as a string
-- A byte array of the original document; optional, can be set to null. Required to decrypt metadata in case it was encrypted. More information on encryption is available in a dedicated section below.
+- A byte array of the original document; optional. Required to decrypt metadata in case it was encrypted. More information on encryption is available in a dedicated section below.
 
 The response object will contain the following fields:
 - `hash`: The document hash
@@ -107,6 +120,10 @@ The response object will contain the following fields:
 - `verified`: This will be true if the verify was successful, false if not
 
 ### Controlling the status states
+
+Every document is assigned a status when it is registered. The list of available statuses is also stored on the chain and can be changed. First item on the list becomes the deafult status.
+
+If the list of available statuses is updated after a document was already registered, its status will stay the same.
 
 #### Getting the available status list
 ```javascript
@@ -147,10 +164,13 @@ It returns the txId of the transaction which updated the status of the document
 
 Currently, anyone who can send a transaction on the network will be able to update the status for any document, as long as the hash of the document is available.
 
-### Registering the Audit contract for the library
+### Registering the Audit contract with the Notary
+
+This step is performed automatically with `setup` call. Please refer to the section "Deploying smart contracts" for the explanation.
 
 ```javascript
-await notary.setAuditContractAddress(addr)
+const auditContractName = "Audit";
+await notary.setAuditContractAddress(auditContractName);
 ```
 
 The `notary.setAuditContractAddress()` takes:
@@ -188,13 +208,14 @@ The Audit feature gives us the ability to see the audit trail of the actions per
 In order to make this feature work, both contracts need to be aware of each other, the Notary needs to register the Audit and the Audit needs to register the Notary contract, as explained in the reference.
 
 
-### Creating the Library object
+### Initializing an Audit instance
 ```javascript
 function getClient() {
     return new Orbs.Client("http://localhost:8080", 42, Orbs.NetworkType.NETWORK_TYPE_TEST_NET);
 }
 
 const owner = Orbs.createAccount();
+const auditContractName = "Audit";
 
 const audit = new Audit(getClient(), auditContractName, owner.publicKey, owner.privateKey);
 ```
@@ -205,10 +226,13 @@ The `new Audit()` takes as parameters:
 - A public key of an orbs account as a byte array
 - A private key of an orbs account as a byte array
 
-### Registering the Notary contract for the library
+### Registering the Notary contract with the Audit
+
+This step is performed automatically with `setup` call. Please refer to the section "Deploying smart contracts" for the explanation.
 
 ```javascript
-await audit.setEventSourceContractAddress(addr)
+const notaryContractName = "Notary";
+await audit.setEventSourceContractAddress(notaryContratName);
 ```
 
 The `audit.setEventSourceContractAddress()` takes:
@@ -231,6 +255,11 @@ It returns an array of objects containing the following fields:
 - `timestamp`: The unix timestamp in nanoseconds when the update happened
 - `signer`: The address used to sign the transaction that made the change
 
+## Testing this library
+
+Running tests requires [gamma-cli](https://github.com/orbs-network/gamma-cli) - Orbs local blockchain.
+
+`npm test`
 
 ## License
 MIT.
