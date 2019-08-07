@@ -95,7 +95,7 @@ The response object will contain the following fields:
 - `hash`: The document hash (the document that was registered)
 - `timestamp`: The unix timestamp in nanoseconds of the block of the registered transaction
 - `signer`: The hex encoded address of the orbs account which signed the transaction
-- `metadata`: The descriptive name of the document - this could be encrypted, depending on how the library was instantiated
+- `metadata`: The descriptive name of the document
 - `secret`: Shared secret used for encryption - this could be empty if no encryption is used
 - `status`: Upon registration, on every new document by default this will be set to "Registered"
 
