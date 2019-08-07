@@ -93,7 +93,7 @@ describe("the library", () => {
         console.log(registerResponse)
         expect(registerResponse.txId).not.to.be.empty();
 
-        expect(registerResponse.metadata).not.to.be.eql("Insurance documents");
+        expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).not.to.be.empty();
 
         const verifyResponse = await notary.verify(registerResponse.hash, getTestFileAsBuffer());

@@ -13,10 +13,11 @@ class Notary {
     async register(payload, metadata) {
         let secret = "";
         let hash = sha256(payload);
+        let transformedMetadata = metadata;
         if (this.shouldEncrypt) {
             secret = generateSecret();
             const secondHash = sha256(payload + secret);
-            metadata = encryptWithPassword(secondHash, metadata);
+            transformedMetadata = encryptWithPassword(secondHash, metadata);
         }
 
         const [tx, txId] = this.orbsClient.createTransaction(
@@ -26,7 +27,7 @@ class Notary {
             'register',
             [
                 argString(hash),
-                argString(metadata),
+                argString(transformedMetadata),
                 argString(secret),
             ],
         );
