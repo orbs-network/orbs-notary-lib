@@ -13,6 +13,11 @@ function decryptWithPassword(password, data) {
 }
 
 function sha256(binary) {
+    // Compatibility layer for nodejs buffer
+    if (binary.__proto__.constructor.name === "Buffer") {
+        binary = sjcl.codec.base64.toBits(binary.toString("base64"))
+    }
+
     const hash = sjcl.hash.sha256.hash(binary);
     return sjcl.codec.hex.fromBits(hash);
 };
