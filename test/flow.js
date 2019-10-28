@@ -6,6 +6,10 @@ function getTestFileAsBuffer() {
     return require("fs").readFileSync(`${__dirname}/../package.json`);
 }
 
+function nodeSHA256(f) {
+    return require("crypto").createHash('sha256').update(f, 'utf8').digest('hex')
+}
+
 function getClient() {
     const endpoint = process.env.ORBS_NODE_ADDRESS || "http://localhost:8080";
     const chain = Number(process.env.ORBS_VCHAIN) || 42;
@@ -28,6 +32,7 @@ describe("the library", () => {
         console.log(registerResponse)
         expect(registerResponse.txId).not.to.be.empty();
         expect(registerResponse.status).to.be.eql("Registered");
+        expect(registerResponse.hash).to.be.eql(nodeSHA256(getTestFileAsBuffer()));
 
         expect(registerResponse.metadata).to.be.eql("Insurance documents");
         expect(registerResponse.secret).to.be.empty();
@@ -116,10 +121,5 @@ describe("the library", () => {
         const p = "password";
         expect(decryptWithPassword(p, encryptWithPassword(p, "hello"))).to.be.eql("hello");
     })
-
-    it("can calculate hash", () => {
-        const hash = sha256(Buffer.from("hello", "ascii"));
-        expect(hash).to.be.eql("448dd2d08744ccbdb3aee98ebae3978c57c7d0e58a9f8bbc9cbc918ace49a05b");
-    });
 });
 
