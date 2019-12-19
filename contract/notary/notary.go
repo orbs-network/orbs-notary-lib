@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/orbs-network/contract-external-libraries-go/v1/structs"
-
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/address"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/env"
@@ -45,15 +43,14 @@ func register(hash string, metadata string, secret string) (timestamp uint64, si
 		Secret:    secret,
 		Status:    status,
 	}
-	structs.WriteStruct(hash, record)
+	_writeRecord(hash, record)
 	_recordAction(hash, "Register", "", "")
 	_recordAction(hash, "UpdateStatus", "", status)
 	return
 }
 
 func verify(hash string) (timestamp uint64, signer []byte, metadata string, secret string, status string) {
-	var res Record
-	structs.ReadStruct(hash, &res)
+	res := _readRecord(hash)
 	timestamp = res.Timestamp
 	signer = res.Signer
 	metadata = res.Metadata
@@ -72,8 +69,7 @@ func getStatusList() string {
 }
 
 func updateStatus(hash string, status string) {
-	var res Record
-	structs.ReadStruct(hash, &res)
+	res := _readRecord(hash)
 	if res.Timestamp == 0 {
 		panic("Record does not exist!")
 	}
@@ -82,7 +78,7 @@ func updateStatus(hash string, status string) {
 		if status == availableStatus {
 			oldStatus := res.Status
 			res.Status = status
-			structs.WriteStruct(hash, res)
+			_writeRecord(hash, res)
 			_recordAction(hash, "StatusUpdate", oldStatus, status)
 
 			return
@@ -97,8 +93,7 @@ func _statusList() []string {
 }
 
 func _recordDoesNotExist(hash string) {
-	var res Record
-	structs.ReadStruct(hash, &res)
+	res := _readRecord(hash)
 	if res.Timestamp != 0 {
 		panic("Record already exists")
 	}
@@ -108,6 +103,28 @@ func _ownerOnly() {
 	if !bytes.Equal(state.ReadBytes(OWNER_KEY), address.GetSignerAddress()) {
 		panic("not allowed!")
 	}
+}
+
+func _writeRecord(hash string, record Record) {
+	state.WriteUint64(_recordKey(hash, "Timestamp"), record.Timestamp)
+	state.WriteBytes(_recordKey(hash, "Signer"), record.Signer)
+	state.WriteString(_recordKey(hash, "Metadata"), record.Metadata)
+	state.WriteString(_recordKey(hash, "Secret"), record.Secret)
+	state.WriteString(_recordKey(hash, "Status"), record.Status)
+}
+
+func _readRecord(hash string) Record {
+	return Record{
+		Timestamp: state.ReadUint64(_recordKey(hash, "Timestamp")),
+		Signer:    state.ReadBytes(_recordKey(hash, "Signer")),
+		Metadata:  state.ReadString(_recordKey(hash, "Metadata")),
+		Secret:    state.ReadString(_recordKey(hash, "Secret")),
+		Status:    state.ReadString(_recordKey(hash, "Status")),
+	}
+}
+
+func _recordKey(hash string, fieldName string) []byte {
+	return []byte(hash + "$" + fieldName)
 }
 
 // Audit
