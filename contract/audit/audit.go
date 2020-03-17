@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/orbs-network/contract-external-libraries-go/v1/keys"
-	"github.com/orbs-network/contract-external-libraries-go/v1/structs"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/address"
 	"github.com/orbs-network/orbs-contract-sdk/go/sdk/v1/env"
@@ -43,7 +41,7 @@ func recordEvent(hash string, action string, from string, to string) {
 		Timestamp:     env.GetBlockTimestamp(),
 	}
 
-	structs.WriteStruct("events."+hash+"."+strconv.FormatUint(_value(hash), 10), event)
+	_writeEvent(hash, event)
 	_inc(hash)
 }
 
@@ -52,9 +50,7 @@ func getEventsByHash(hash string) string {
 
 	events_total := _value(hash)
 	for i := uint64(0); i < events_total; i++ {
-		event := Event{}
-		structs.ReadStruct("events."+hash+"."+strconv.FormatUint(i, 10), &event)
-		events = append(events, event)
+		events = append(events, _readEvent(hash, i))
 	}
 
 	rawJson, _ := json.Marshal(events)
@@ -81,12 +77,40 @@ func _verifyEventSource() {
 
 func _inc(hash string) uint64 {
 	v := _value(hash) + 1
-	state.WriteUint64(keys.Key(COUNTER_KEY, ".", hash), v)
+	state.WriteUint64(_counterKey(hash), v)
 	return v
 }
 
 func _value(hash string) uint64 {
-	return state.ReadUint64(keys.Key(COUNTER_KEY, ".", hash))
+	return state.ReadUint64(_counterKey(hash))
+}
+
+func _counterKey(hash string) []byte {
+	return []byte(string(COUNTER_KEY) + "." + hash)
+}
+
+func _eventKey(hash string, index uint64, fieldName string) []byte {
+	base := "events." + hash + "." + strconv.FormatUint(index, 10)
+	return []byte(base + "$" + fieldName)
+}
+
+func _writeEvent(hash string, event Event) {
+	index := _value(hash)
+	state.WriteString(_eventKey(hash, index, "Action"), event.Action)
+	state.WriteString(_eventKey(hash, index, "From"), event.From)
+	state.WriteString(_eventKey(hash, index, "To"), event.To)
+	state.WriteString(_eventKey(hash, index, "SignerAddress"), event.SignerAddress)
+	state.WriteUint64(_eventKey(hash, index, "Timestamp"), event.Timestamp)
+}
+
+func _readEvent(hash string, index uint64) Event {
+	return Event{
+		Action:        state.ReadString(_eventKey(hash, index, "Action")),
+		From:          state.ReadString(_eventKey(hash, index, "From")),
+		To:            state.ReadString(_eventKey(hash, index, "To")),
+		SignerAddress: state.ReadString(_eventKey(hash, index, "SignerAddress")),
+		Timestamp:     state.ReadUint64(_eventKey(hash, index, "Timestamp")),
+	}
 }
 
 func _ownerOnly() {

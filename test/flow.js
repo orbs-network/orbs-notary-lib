@@ -20,11 +20,9 @@ describe("the library", () => {
     it("registers and verifies without encryption", async () => {
         const owner = Orbs.createAccount();
         const notaryContractName = `Notary${new Date().getTime()}`;
-        const auditContractName = `Audit${new Date().getTime()}`;
 
         await setup(getClient(), owner, {
             notaryContractName,
-            auditContractName
         });
 
         const notary = new Notary(getClient(), notaryContractName, owner.publicKey, owner.privateKey);

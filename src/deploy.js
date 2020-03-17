@@ -41,13 +41,16 @@ function getOwner() {
 
 async function setup(client, owner, { notaryContractName, auditContractName }) {
     await deploy(client, owner, getContractCodeAsBuffer(), notaryContractName);
-    await deploy(client, owner, getAuditContractCodeAsBuffer(), auditContractName);
-
     const notary = new Notary(client, notaryContractName, owner.publicKey, owner.privateKey);
-    const audit = new Audit(client, auditContractName, owner.publicKey, owner.privateKey);
 
-    await notary.setAuditContractAddress(auditContractName);
-    await audit.setEventSourceContractAddress(notaryContractName);
+    if (auditContractName) {
+        await deploy(client, owner, getAuditContractCodeAsBuffer(), auditContractName);
+
+        const audit = new Audit(client, auditContractName, owner.publicKey, owner.privateKey);
+
+        await notary.setAuditContractAddress(auditContractName);
+        await audit.setEventSourceContractAddress(notaryContractName);
+    }
 }
 
 module.exports = {
